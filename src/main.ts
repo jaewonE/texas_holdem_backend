@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function nestApp() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -13,6 +13,7 @@ async function nestApp() {
         process.env.NODE_ENV === 'production' ? true : false,
     }),
   );
+  app.enableCors();
   await app.listen(process.env.PORT || 4000);
 }
 nestApp();

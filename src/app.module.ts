@@ -43,6 +43,10 @@ import { User } from './user/entities/user.entity';
       // playground: process.env.NODE_ENV !== 'production',
       driver: ApolloDriver,
       autoSchemaFile: true,
+      cors: {
+        origin: 'http://localhost:3000',
+        credentials: true,
+      },
     }),
     CommonModule,
     UserModule,
