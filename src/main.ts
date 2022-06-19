@@ -9,9 +9,10 @@ async function nestApp() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-      disableErrorMessages: process.env.NODE_ENV === 'prod' ? true : false,
+      disableErrorMessages:
+        process.env.NODE_ENV === 'production' ? true : false,
     }),
   );
-  await app.listen(4000);
+  await app.listen(process.env.PORT || 4000);
 }
 nestApp();
