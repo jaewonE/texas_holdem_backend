@@ -5,12 +5,10 @@ import {
   IsEmail,
   IsInt,
   IsOptional,
-  IsPositive,
   IsString,
+  Min,
 } from 'class-validator';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import { InternalServerErrorException } from '@nestjs/common';
+import { Column, Entity } from 'typeorm';
 import { CoreEntity } from 'src/common/entities/core.entity';
 
 @InputType('UserInputType', { isAbstract: true })
@@ -41,7 +39,7 @@ export class User extends CoreEntity {
   @Column({ default: 0 })
   @Field(() => Int, { defaultValue: 0 })
   @IsInt()
-  @IsPositive()
+  @Min(0)
   chip: number;
 
   @Column({ nullable: true })
@@ -58,7 +56,7 @@ export class User extends CoreEntity {
   @Column({ default: 0 })
   @Field(() => Int, { defaultValue: 0 })
   @IsInt()
-  @IsPositive()
+  @Min(0)
   publicCardLen: number;
 
   @Column({ default: false })
@@ -75,26 +73,4 @@ export class User extends CoreEntity {
   @Field(() => Boolean, { defaultValue: false })
   @IsBoolean()
   isAdmin: boolean;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async hashPassword(): Promise<void> {
-    if (this.password) {
-      try {
-        this.password = await bcrypt.hash(this.password, 10);
-      } catch (e) {
-        console.error(e);
-        throw new InternalServerErrorException();
-      }
-    }
-  }
-
-  async checkPassword(inputPw: string): Promise<boolean> {
-    try {
-      return await bcrypt.compare(inputPw, this.password);
-    } catch (e) {
-      console.error(e);
-      throw new InternalServerErrorException();
-    }
-  }
 }

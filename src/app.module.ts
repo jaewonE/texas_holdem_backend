@@ -42,9 +42,12 @@ import { User } from './user/entities/user.entity';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       // playground: process.env.NODE_ENV !== 'production',
       driver: ApolloDriver,
+      installSubscriptionHandlers: true,
       autoSchemaFile: true,
       cors: {
-        origin: 'http://localhost:3000',
+        origin: process.env.FRONT_PAGE
+          ? process.env.FRONT_PAGE
+          : 'http://localhost:3000',
         credentials: true,
       },
     }),
