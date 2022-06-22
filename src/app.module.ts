@@ -46,6 +46,7 @@ import { User } from './user/entities/user.entity';
       driver: ApolloDriver,
       installSubscriptionHandlers: true,
       autoSchemaFile: true,
+      cache: 'bounded',
       cors: {
         origin: process.env.FRONT_PAGE
           ? process.env.FRONT_PAGE
