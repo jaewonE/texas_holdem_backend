@@ -41,6 +41,7 @@ import { User } from './user/entities/user.entity';
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       // playground: process.env.NODE_ENV !== 'production',
+      playground: true,
       driver: ApolloDriver,
       installSubscriptionHandlers: true,
       autoSchemaFile: true,
