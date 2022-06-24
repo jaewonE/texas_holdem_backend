@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CoreOuput } from 'src/common/dtos/coreInput.dto';
+import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
 import { GetUser } from './decorators/user.decorator';
 import {
   CreateAccountInput,

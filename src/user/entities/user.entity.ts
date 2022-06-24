@@ -8,8 +8,9 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { CoreEntity } from 'src/common/entities/core.entity';
+import { Room } from 'src/room/entities/room.entity';
 
 @InputType('UserInputType', { isAbstract: true })
 @ObjectType()
@@ -42,12 +43,6 @@ export class User extends CoreEntity {
   @Min(0)
   chip: number;
 
-  @Column({ nullable: true })
-  @Field(() => Int, { nullable: true })
-  @IsOptional()
-  @IsInt()
-  roomId?: number;
-
   @Column('int', { array: true, default: [] })
   @Field(() => [Int], { defaultValue: [] })
   @IsArray()
@@ -69,8 +64,11 @@ export class User extends CoreEntity {
   @IsBoolean()
   isDead: boolean;
 
-  @Column({ default: false })
-  @Field(() => Boolean, { defaultValue: false })
-  @IsBoolean()
-  isAdmin: boolean;
+  @ManyToOne(() => Room, (room: Room) => room.users, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Room, { nullable: true })
+  @IsOptional()
+  room?: Room;
 }

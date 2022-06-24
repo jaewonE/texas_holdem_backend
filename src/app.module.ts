@@ -8,6 +8,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { CommonModule } from './common/common.module';
 import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
+import { RoomModule } from './room/room.module';
+import { Room } from './room/entities/room.entity';
 
 @Module({
   imports: [
@@ -37,7 +39,7 @@ import { User } from './user/entities/user.entity';
           }),
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV !== 'production',
-      entities: [User],
+      entities: [User, Room],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       // playground: process.env.NODE_ENV !== 'production',
@@ -56,6 +58,7 @@ import { User } from './user/entities/user.entity';
     }),
     CommonModule,
     UserModule,
+    RoomModule,
   ],
   controllers: [],
   providers: [],

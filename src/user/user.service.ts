@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CoreOuput } from 'src/common/dtos/coreInput.dto';
+import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
 import { Repository } from 'typeorm';
 import {
   CreateAccountInput,

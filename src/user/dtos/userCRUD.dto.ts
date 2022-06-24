@@ -14,7 +14,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { CoreOuput } from 'src/common/dtos/coreInput.dto';
+import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
 import { User } from '../entities/user.entity';
 
 @InputType()
