@@ -55,10 +55,10 @@ export class UserService {
         };
       }
       const hashPw = await this.hashPassword(password);
-      const user = await this.userDB.save(
+      const { id } = await this.userDB.save(
         this.userDB.create({ email, password: hashPw, name }),
       );
-      return { status: true, token: this.jwtService.sign({ id: user.id }) };
+      return { status: true, token: this.jwtService.sign({ id }) };
     } catch (e) {
       return {
         status: false,
