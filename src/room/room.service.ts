@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Raw, Repository } from 'typeorm';
-import { JwtService } from 'src/user/jwt/jwt.service';
 import { PaginationInput } from 'src/common/dtos/pagination.dto';
 import {
   CreateRoomInput,
@@ -22,7 +21,6 @@ export class RoomService {
   constructor(
     // @InjectRepository(User) private readonly userDB: Repository<User>,
     @InjectRepository(Room) private readonly roomDB: Repository<Room>,
-    private readonly jwtService: JwtService,
   ) {}
 
   async createRoom(
