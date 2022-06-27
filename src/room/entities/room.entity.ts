@@ -44,16 +44,22 @@ export class Room extends CoreEntity {
   @Min(0)
   publicCardLen: number;
 
+  @Column({ default: 8 })
+  @Field(() => Int, { defaultValue: 8 })
+  @IsInt()
+  @Max(8)
+  maxMember: number;
+
+  @Column()
+  @Field(() => Int)
+  @IsInt()
+  ownerId: number;
+
   @OneToMany(() => User, (user: User) => user.room)
   @Field(() => [User], { nullable: true })
   @IsOptional()
   @IsArray()
   users?: User[];
-
-  @Field(() => Int, { defaultValue: 8 })
-  @IsInt()
-  @Max(8)
-  maxMember: number;
 
   @OneToMany(
     () => RoomInvitation,

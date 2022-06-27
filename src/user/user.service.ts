@@ -15,6 +15,7 @@ import {
 import { User } from './entities/user.entity';
 import { JwtService } from './jwt/jwt.service';
 import * as bcrypt from 'bcrypt';
+import { GetUserInvitationOutput } from 'src/room/dtos/memberCRUD.dto';
 
 @Injectable()
 export class UserService {
@@ -164,6 +165,28 @@ export class UserService {
       return {
         status: false,
         error: 'Unexpected error from deleteUser',
+      };
+    }
+  }
+
+  async getUserWithInvitations({
+    id,
+  }: FindUserInput): Promise<GetUserInvitationOutput> {
+    try {
+      const user = await this.userDB.findOne({
+        where: { id },
+        relations: ['postedInvitations', 'receivedInvitations'],
+      });
+      if (!user) return { status: false, error: 'User not found' };
+      return {
+        status: true,
+        postedInvitations: user.postedInvitations,
+        receivedInvitations: user.receivedInvitations,
+      };
+    } catch (e) {
+      return {
+        status: false,
+        error: 'Unexpected error from getUserInvitations',
       };
     }
   }

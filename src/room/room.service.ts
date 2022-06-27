@@ -5,7 +5,6 @@ import { PaginationInput } from 'src/common/dtos/pagination.dto';
 import {
   CreateRoomInput,
   CreateRoomOutput,
-  DeleteRoomInput,
   FindRoomInput,
   FindRoomOutput,
   RoomListOutput,
@@ -32,6 +31,7 @@ export class RoomService {
       const newRoom = this.roomDB.create(createRoomInput);
       const users = [user];
       newRoom.users = users;
+      newRoom.ownerId = user.id;
       const { id } = await this.roomDB.save(newRoom);
       return {
         status: Boolean(id),
@@ -119,7 +119,7 @@ export class RoomService {
 
   async updateRoom(
     user: User,
-    { id, name, coverImg }: UpdateRoomInput,
+    { id, name, coverImg, ownerId }: UpdateRoomInput,
   ): Promise<CoreOuput> {
     try {
       const { room, ...roomOwnerStatus } = await this.memberService.isRoomOwner(
@@ -130,6 +130,7 @@ export class RoomService {
       if (!room) throw new Error();
       name && (room.name = name);
       coverImg && (room.coverImg = coverImg);
+      ownerId && (room.ownerId = ownerId);
       await this.roomDB.save([{ id, ...room }]);
       return {
         status: true,
@@ -138,24 +139,6 @@ export class RoomService {
       return {
         status: false,
         error: 'Unexpected error from updateRoom',
-      };
-    }
-  }
-
-  async deleteRoom(user: User, { id }: DeleteRoomInput): Promise<CoreOuput> {
-    try {
-      const { room, ...roomOwnerStatus } = await this.memberService.isRoomOwner(
-        { roomId: id, userId: user.id },
-        'updateRoom',
-      );
-      if (!roomOwnerStatus.status) return roomOwnerStatus;
-      if (!room) throw new Error();
-      await this.roomDB.delete(id);
-      return { status: true };
-    } catch (e) {
-      return {
-        status: false,
-        error: 'Unexpected error from deleteRoom',
       };
     }
   }

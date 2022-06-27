@@ -64,8 +64,8 @@ export class RoomListOutput extends PaginationOutput {
 @InputType()
 export class UpdateRoomInput extends IntersectionType(
   PickType(Room, ['id']),
-  PartialType(PickType(Room, ['name', 'coverImg'])),
+  PartialType(PickType(Room, ['name', 'coverImg', 'ownerId'])),
 ) {}
 
 @InputType()
-export class DeleteRoomInput extends PickType(Room, ['id']) {}
+export class LeftRoomInput extends PickType(Room, ['id']) {}

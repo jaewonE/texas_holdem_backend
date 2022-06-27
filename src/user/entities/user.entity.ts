@@ -75,7 +75,7 @@ export class User extends CoreEntity {
 
   @OneToMany(
     () => RoomInvitation,
-    (invitation: RoomInvitation) => invitation.owner,
+    (invitation: RoomInvitation) => invitation.poster,
     {
       onDelete: 'SET NULL',
       nullable: true,
@@ -83,5 +83,17 @@ export class User extends CoreEntity {
   )
   @Field(() => [RoomInvitation], { nullable: true })
   @IsArray()
-  roomInvitation?: RoomInvitation[];
+  postedInvitations?: RoomInvitation[];
+
+  @OneToMany(
+    () => RoomInvitation,
+    (invitation: RoomInvitation) => invitation.receiver,
+    {
+      onDelete: 'SET NULL',
+      nullable: true,
+    },
+  )
+  @Field(() => [RoomInvitation], { nullable: true })
+  @IsArray()
+  receivedInvitations?: RoomInvitation[];
 }

@@ -8,7 +8,6 @@ import { JwtGuard } from 'src/user/guards/user.guard';
 import {
   CreateRoomInput,
   CreateRoomOutput,
-  DeleteRoomInput,
   FindRoomInput,
   FindRoomOutput,
   RoomListOutput,
@@ -58,14 +57,5 @@ export class RoomResolver {
     @Args('input') updateRoomInput: UpdateRoomInput,
   ): Promise<CoreOuput> {
     return this.roomService.updateRoom(user, updateRoomInput);
-  }
-
-  @Mutation(() => CoreOuput)
-  @UseGuards(JwtGuard)
-  deleteUser(
-    @GetUser() user: User,
-    @Args('input') deleteRoomInput: DeleteRoomInput,
-  ): Promise<CoreOuput> {
-    return this.roomService.deleteRoom(user, deleteRoomInput);
   }
 }

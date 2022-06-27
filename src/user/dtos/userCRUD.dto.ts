@@ -7,14 +7,15 @@ import {
   PickType,
 } from '@nestjs/graphql';
 import {
+  IsArray,
   IsInt,
   IsObject,
   IsOptional,
-  IsPositive,
   IsString,
   Min,
 } from 'class-validator';
 import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
+import { RoomInvitation } from 'src/room/entities/roomInvitation.entity';
 import { User } from '../entities/user.entity';
 
 @InputType()

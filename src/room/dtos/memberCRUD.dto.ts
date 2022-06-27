@@ -1,12 +1,7 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsInt } from 'class-validator';
-
-/*
-1. 방장 교체
-2. 맴버 초대(초대장 테이블 생성)
-3. 맴버 삭제
- */
-
+import { Field, InputType, Int, ObjectType, PickType } from '@nestjs/graphql';
+import { IsArray, IsInt, IsOptional } from 'class-validator';
+import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
+import { RoomInvitation } from '../entities/roomInvitation.entity';
 @InputType()
 export class JoinRoomInput {
   @Field(() => Int)
@@ -19,4 +14,18 @@ export class MemberInput extends JoinRoomInput {
   @Field(() => Int)
   @IsInt()
   userId: number;
+}
+
+@InputType()
+export class RoomInvitationIdInput extends PickType(RoomInvitation, ['id']) {}
+
+@ObjectType()
+export class GetUserInvitationOutput extends CoreOuput {
+  @Field(() => [RoomInvitation])
+  @IsArray()
+  postedInvitations?: RoomInvitation[];
+
+  @Field(() => [RoomInvitation])
+  @IsArray()
+  receivedInvitations?: RoomInvitation[];
 }

@@ -1,10 +1,18 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
+import { GetUserId } from 'src/user/decorators/jwt.decorator';
 import { GetUser } from 'src/user/decorators/user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { JwtGuard } from 'src/user/guards/user.guard';
-import { JoinRoomInput, MemberInput } from './dtos/memberCRUD.dto';
+import { JwtIdGuard } from 'src/user/guards/userId.guard';
+import {
+  GetUserInvitationOutput,
+  JoinRoomInput,
+  MemberInput,
+  RoomInvitationIdInput,
+} from './dtos/memberCRUD.dto';
+import { LeftRoomInput } from './dtos/roomCRUD.dto';
 import { MemberService } from './member.service';
 
 @Resolver()
@@ -45,5 +53,49 @@ export class MemberResolver {
     @Args('input') memberInput: MemberInput,
   ): Promise<CoreOuput> {
     return this.memberService.inviteNewUser(user, memberInput);
+  }
+
+  @Mutation(() => CoreOuput)
+  @UseGuards(JwtGuard)
+  deleteInvitation(
+    @GetUser() user: User,
+    @Args('input') roomInvitationIdInput: RoomInvitationIdInput,
+  ): Promise<CoreOuput> {
+    return this.memberService.deleteInvitation(user, roomInvitationIdInput);
+  }
+
+  @Mutation(() => CoreOuput)
+  @UseGuards(JwtGuard)
+  acceptInvitation(
+    @GetUser() user: User,
+    @Args('input') roomInvitationIdInput: RoomInvitationIdInput,
+  ): Promise<CoreOuput> {
+    return this.memberService.acceptInvitation(user, roomInvitationIdInput);
+  }
+
+  @Mutation(() => CoreOuput)
+  @UseGuards(JwtGuard)
+  refuseInvitation(
+    @GetUser() user: User,
+    @Args('input') roomInvitationIdInput: RoomInvitationIdInput,
+  ): Promise<CoreOuput> {
+    return this.memberService.refuseInvitation(user, roomInvitationIdInput);
+  }
+
+  @Mutation(() => CoreOuput)
+  @UseGuards(JwtGuard)
+  leftRoom(
+    @GetUser() user: User,
+    @Args('input') leftRoomInput: LeftRoomInput,
+  ): Promise<CoreOuput> {
+    return this.memberService.leftRoom(user, leftRoomInput);
+  }
+
+  @Query(() => GetUserInvitationOutput)
+  @UseGuards(JwtIdGuard)
+  getUserInvitations(
+    @GetUserId() id: number,
+  ): Promise<GetUserInvitationOutput> {
+    return this.memberService.getUserInvitations(id);
   }
 }
