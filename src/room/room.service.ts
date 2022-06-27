@@ -15,12 +15,13 @@ import {
 import { Room } from './entities/room.entity';
 import { User } from 'src/user/entities/user.entity';
 import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
+import { MemberService } from './member.service';
 
 @Injectable()
 export class RoomService {
   constructor(
-    // @InjectRepository(User) private readonly userDB: Repository<User>,
     @InjectRepository(Room) private readonly roomDB: Repository<Room>,
+    private readonly memberService: MemberService,
   ) {}
 
   async createRoom(
@@ -121,16 +122,12 @@ export class RoomService {
     { id, name, coverImg }: UpdateRoomInput,
   ): Promise<CoreOuput> {
     try {
-      const room = await this.roomDB.findOne({
-        where: { id },
-      });
-      if (!room) return { status: false, error: 'Room not Found' };
-      if (room.users.length <= 0) throw new Error();
-      if (room.users[0].id !== user.id)
-        return {
-          status: false,
-          error: 'Permission denied: not owner of this room',
-        };
+      const { room, ...roomOwnerStatus } = await this.memberService.isRoomOwner(
+        { roomId: id, userId: user.id },
+        'updateRoom',
+      );
+      if (!roomOwnerStatus.status) return roomOwnerStatus;
+      if (!room) throw new Error();
       name && (room.name = name);
       coverImg && (room.coverImg = coverImg);
       await this.roomDB.save([{ id, ...room }]);
@@ -147,16 +144,12 @@ export class RoomService {
 
   async deleteRoom(user: User, { id }: DeleteRoomInput): Promise<CoreOuput> {
     try {
-      const room = await this.roomDB.findOne({
-        where: { id },
-      });
-      if (!room) return { status: false, error: 'Room not Found' };
-      if (room.users.length <= 0) throw new Error();
-      if (room.users[0].id !== user.id)
-        return {
-          status: false,
-          error: 'Permission denied: not owner of this room',
-        };
+      const { room, ...roomOwnerStatus } = await this.memberService.isRoomOwner(
+        { roomId: id, userId: user.id },
+        'updateRoom',
+      );
+      if (!roomOwnerStatus.status) return roomOwnerStatus;
+      if (!room) throw new Error();
       await this.roomDB.delete(id);
       return { status: true };
     } catch (e) {

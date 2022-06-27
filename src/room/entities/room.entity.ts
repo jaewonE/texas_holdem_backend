@@ -1,8 +1,16 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
-import { IsArray, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { User } from 'src/user/entities/user.entity';
+import { RoomInvitation } from './roomInvitation.entity';
 
 @InputType('RoomInputType', { isAbstract: true })
 @ObjectType()
@@ -41,4 +49,21 @@ export class Room extends CoreEntity {
   @IsOptional()
   @IsArray()
   users?: User[];
+
+  @Field(() => Int, { defaultValue: 8 })
+  @IsInt()
+  @Max(8)
+  maxMember: number;
+
+  @OneToMany(
+    () => RoomInvitation,
+    (invitation: RoomInvitation) => invitation.room,
+    {
+      onDelete: 'SET NULL',
+      nullable: true,
+    },
+  )
+  @Field(() => [RoomInvitation], { nullable: true })
+  @IsArray()
+  roomInvitation?: RoomInvitation[];
 }

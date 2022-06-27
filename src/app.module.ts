@@ -10,6 +10,7 @@ import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
 import { RoomModule } from './room/room.module';
 import { Room } from './room/entities/room.entity';
+import { RoomInvitation } from './room/entities/roomInvitation.entity';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { Room } from './room/entities/room.entity';
           }),
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV !== 'production',
-      entities: [User, Room],
+      entities: [User, Room, RoomInvitation],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       // playground: process.env.NODE_ENV !== 'production',

@@ -8,9 +8,10 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Room } from 'src/room/entities/room.entity';
+import { RoomInvitation } from 'src/room/entities/roomInvitation.entity';
 
 @InputType('UserInputType', { isAbstract: true })
 @ObjectType()
@@ -71,4 +72,16 @@ export class User extends CoreEntity {
   @Field(() => Room, { nullable: true })
   @IsOptional()
   room?: Room;
+
+  @OneToMany(
+    () => RoomInvitation,
+    (invitation: RoomInvitation) => invitation.owner,
+    {
+      onDelete: 'SET NULL',
+      nullable: true,
+    },
+  )
+  @Field(() => [RoomInvitation], { nullable: true })
+  @IsArray()
+  roomInvitation?: RoomInvitation[];
 }
