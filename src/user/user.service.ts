@@ -82,6 +82,22 @@ export class UserService {
     }
   }
 
+  async findUserWithRelation({ id }: FindUserInput): Promise<FindUserOutput> {
+    try {
+      const user = await this.userDB.findOne({
+        where: { id },
+        relations: ['room', 'postedInvitations', 'receivedInvitations'],
+      });
+      return { status: true, user };
+    } catch (e) {
+      return {
+        status: false,
+        error: 'Unexpected error from findUser',
+        user: null,
+      };
+    }
+  }
+
   async searchUser({ email }: SearchUserInput): Promise<FindUserOutput> {
     try {
       const user = await this.userDB.findOne({ where: { email } });

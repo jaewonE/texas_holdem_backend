@@ -2,9 +2,11 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
 import { PaginationInput } from 'src/common/dtos/pagination.dto';
+import { GetUserId } from 'src/user/decorators/jwt.decorator';
 import { GetUser } from 'src/user/decorators/user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { JwtGuard } from 'src/user/guards/user.guard';
+import { JwtIdGuard } from 'src/user/guards/userId.guard';
 import {
   CreateRoomInput,
   CreateRoomOutput,
@@ -21,12 +23,12 @@ export class RoomResolver {
   constructor(private readonly roomService: RoomService) {}
 
   @Mutation(() => CreateRoomOutput)
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtIdGuard)
   createRoom(
-    @GetUser() user: User,
+    @GetUserId() userId: number,
     @Args('input') createRoomInput: CreateRoomInput,
   ): Promise<CreateRoomOutput> {
-    return this.roomService.createRoom(user, createRoomInput);
+    return this.roomService.createRoom(userId, createRoomInput);
   }
 
   @Query(() => RoomListOutput)

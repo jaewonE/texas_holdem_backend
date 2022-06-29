@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Raw, Repository } from 'typeorm';
 import { PaginationInput } from 'src/common/dtos/pagination.dto';
@@ -15,19 +15,27 @@ import { Room } from './entities/room.entity';
 import { User } from 'src/user/entities/user.entity';
 import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
 import { MemberService } from './member.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class RoomService {
   constructor(
     @InjectRepository(Room) private readonly roomDB: Repository<Room>,
+    @Inject(UserService) private readonly userService: UserService,
     private readonly memberService: MemberService,
   ) {}
 
   async createRoom(
-    user: User,
+    userId: number,
     createRoomInput: CreateRoomInput,
   ): Promise<CreateRoomOutput> {
     try {
+      const { user, ...state } = await this.userService.findUserWithRelation({
+        id: userId,
+      });
+      if (!state.status || !user) return state;
+      if (user.room)
+        return { status: false, error: 'User is already in the room' };
       const newRoom = this.roomDB.create(createRoomInput);
       const users = [user];
       newRoom.users = users;
@@ -50,7 +58,7 @@ export class RoomService {
     try {
       const [rooms, totalResult] = await this.roomDB.findAndCount({
         take: take,
-        skip: (page - 1) * take,
+        skip: page * take,
         order: {
           createAt: 'DESC',
         },
@@ -97,7 +105,7 @@ export class RoomService {
       const [rooms, totalResult] = await this.roomDB.findAndCount({
         where: { name: Raw((name) => `${name} ILIKE '%${roomName}%'`) },
         take: take,
-        skip: (page - 1) * take,
+        skip: page * take,
         order: {
           createAt: 'DESC',
         },

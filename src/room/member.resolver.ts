@@ -28,14 +28,14 @@ export class MemberResolver {
     return this.memberService.joinRoom(user, joinRoomInput);
   }
 
-  @Mutation(() => CoreOuput)
-  @UseGuards(JwtGuard)
-  delegateRoomOwner(
-    @GetUser() user: User,
-    @Args('input') memberInput: MemberInput,
-  ): Promise<CoreOuput> {
-    return this.memberService.delegateRoomOwner(user, memberInput);
-  }
+  // @Mutation(() => CoreOuput)
+  // @UseGuards(JwtGuard)
+  // delegateRoomOwner(
+  //   @GetUser() user: User,
+  //   @Args('input') memberInput: MemberInput,
+  // ): Promise<CoreOuput> {
+  //   return this.memberService.delegateRoomOwner(user, memberInput);
+  // }
 
   @Mutation(() => CoreOuput)
   @UseGuards(JwtGuard)

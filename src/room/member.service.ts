@@ -121,37 +121,37 @@ export class MemberService {
     }
   }
 
-  async delegateRoomOwner(
-    user: User,
-    { roomId, userId }: MemberInput,
-  ): Promise<CoreOuput> {
-    try {
-      const { room, ...roomOwnerStatus } = await this.isRoomOwner(
-        { roomId, userId: user.id },
-        'delegateRoomOwner',
-      );
-      if (!roomOwnerStatus.status) return roomOwnerStatus;
-      if (!room) throw new Error();
+  // async delegateRoomOwner(
+  //   user: User,
+  //   { roomId, userId }: MemberInput,
+  // ): Promise<CoreOuput> {
+  //   try {
+  //     const { room, ...roomOwnerStatus } = await this.isRoomOwner(
+  //       { roomId, userId: user.id },
+  //       'delegateRoomOwner',
+  //     );
+  //     if (!roomOwnerStatus.status) return roomOwnerStatus;
+  //     if (!room) throw new Error();
 
-      let hasUser = false;
-      for (const instance of room.users) {
-        if (instance.id === userId) {
-          hasUser = true;
-          break;
-        }
-      }
-      if (!hasUser)
-        return { status: false, error: `user with id ${userId} not found` };
-      room.ownerId = userId;
-      await this.roomDB.save({ id: roomId, ...room });
-      return { status: true };
-    } catch (e) {
-      return {
-        status: false,
-        error: 'Unexpected error from delegateRoomOwner',
-      };
-    }
-  }
+  //     let hasUser = false;
+  //     for (const instance of room.users) {
+  //       if (instance.id === userId) {
+  //         hasUser = true;
+  //         break;
+  //       }
+  //     }
+  //     if (!hasUser)
+  //       return { status: false, error: `user with id ${userId} not found` };
+  //     room.ownerId = userId;
+  //     await this.roomDB.save({ id: roomId, ...room });
+  //     return { status: true };
+  //   } catch (e) {
+  //     return {
+  //       status: false,
+  //       error: 'Unexpected error from delegateRoomOwner',
+  //     };
+  //   }
+  // }
 
   async expelUser(
     user: User,

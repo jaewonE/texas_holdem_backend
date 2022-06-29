@@ -49,6 +49,9 @@ import { RoomInvitation } from './room/entities/roomInvitation.entity';
       driver: ApolloDriver,
       installSubscriptionHandlers: true,
       autoSchemaFile: true,
+      subscriptions: {
+        'graphql-ws': true,
+      },
       cache: 'bounded',
       cors: {
         origin: process.env.FRONT_PAGE
