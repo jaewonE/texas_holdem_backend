@@ -1,28 +1,28 @@
-import { Field, InputType, ObjectType } from '@nestjs/graphql';
-import { IsNumber, IsOptional, Max } from 'class-validator';
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { IsInt, IsOptional, Max } from 'class-validator';
 import { CoreOuput } from './coreOutput.dto';
 
 @InputType()
 export class PaginationInput {
-  @Field(() => Number)
-  @IsNumber()
+  @Field(() => Int)
+  @IsInt()
   page: number;
 
-  @Field(() => Number)
-  @IsNumber()
+  @Field(() => Int)
+  @IsInt()
   @Max(30)
   take: number;
 }
 
 @ObjectType()
 export class PaginationOutput extends CoreOuput {
-  @Field(() => Number, { nullable: true })
+  @Field(() => Int, { nullable: true })
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   totalPages?: number;
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Int, { nullable: true })
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   totalResult?: number;
 }

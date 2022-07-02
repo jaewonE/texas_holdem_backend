@@ -1,6 +1,7 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import {
   IsArray,
+  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
@@ -21,11 +22,10 @@ export class Room extends CoreEntity {
   @IsString()
   name: string;
 
-  @Column({ nullable: true })
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  @IsString()
-  coverImg?: string;
+  @Column({ default: true })
+  @Field(() => Boolean, { defaultValue: true })
+  @IsBoolean()
+  isPublic?: boolean;
 
   @Column({ default: 0 })
   @Field(() => Int, { defaultValue: 0 })

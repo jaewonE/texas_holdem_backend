@@ -26,10 +26,11 @@ import { Room } from '../entities/room.entity';
 */
 
 @InputType()
-export class CreateRoomInput extends IntersectionType(
-  PickType(Room, ['name']),
-  PartialType(PickType(Room, ['coverImg'])),
-) {}
+export class CreateRoomInput extends PickType(Room, [
+  'name',
+  'maxMember',
+  'isPublic',
+]) {}
 @ObjectType()
 export class CreateRoomOutput extends CoreOuput {
   @Field(() => Int, { nullable: true })
@@ -64,7 +65,7 @@ export class RoomListOutput extends PaginationOutput {
 @InputType()
 export class UpdateRoomInput extends IntersectionType(
   PickType(Room, ['id']),
-  PartialType(PickType(Room, ['name', 'coverImg', 'ownerId'])),
+  PartialType(PickType(Room, ['name', 'isPublic', 'ownerId'])),
 ) {}
 
 @InputType()

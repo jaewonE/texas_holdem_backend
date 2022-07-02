@@ -1,5 +1,5 @@
 import { Field, InputType, Int, ObjectType, PickType } from '@nestjs/graphql';
-import { IsArray, IsInt, IsOptional } from 'class-validator';
+import { IsArray, IsInt } from 'class-validator';
 import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
 import { RoomInvitation } from '../entities/roomInvitation.entity';
 @InputType()

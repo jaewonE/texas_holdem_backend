@@ -127,7 +127,7 @@ export class RoomService {
 
   async updateRoom(
     user: User,
-    { id, name, coverImg, ownerId }: UpdateRoomInput,
+    { id, name, isPublic, ownerId }: UpdateRoomInput,
   ): Promise<CoreOuput> {
     try {
       const { room, ...roomOwnerStatus } = await this.memberService.isRoomOwner(
@@ -137,7 +137,7 @@ export class RoomService {
       if (!roomOwnerStatus.status) return roomOwnerStatus;
       if (!room) throw new Error();
       name && (room.name = name);
-      coverImg && (room.coverImg = coverImg);
+      isPublic && (room.isPublic = isPublic);
       ownerId && (room.ownerId = ownerId);
       await this.roomDB.save([{ id, ...room }]);
       return {

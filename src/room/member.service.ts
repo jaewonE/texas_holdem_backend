@@ -67,6 +67,7 @@ export class MemberService {
     }
   }
 
+  // 만약 유저가 다른 방에 있었다면 joinRoom 메소드 실행시 그 방으로 값이 덮어쓰인다.
   async joinRoom(user: User, { roomId }: JoinRoomInput): Promise<CoreOuput> {
     try {
       const room = await this.roomDB.findOne({
@@ -74,8 +75,11 @@ export class MemberService {
         relations: ['users'],
       });
       if (!room) return { status: false, error: 'Room not found' };
+      if (!room.isPublic)
+        return { status: false, error: 'The room has been changed to private' };
       if (room.users.length >= room.maxMember)
         return { status: false, error: 'Member is full' };
+
       if (!room.users) room.users = [];
       const hasUser = room.users.filter((instance) => instance.id === user.id);
       if (hasUser.length > 0)
