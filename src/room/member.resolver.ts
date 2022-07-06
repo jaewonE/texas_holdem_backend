@@ -1,7 +1,5 @@
-import { Inject, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
-import { PubSub } from 'graphql-subscriptions';
-import { PUB_SUB } from 'src/common/common.module';
+import { UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
 import { GetUserId } from 'src/user/decorators/jwt.decorator';
 import { GetUser } from 'src/user/decorators/user.decorator';
@@ -19,21 +17,7 @@ import { MemberService } from './member.service';
 
 @Resolver()
 export class MemberResolver {
-  constructor(
-    private readonly memberService: MemberService,
-    @Inject(PUB_SUB) private readonly pubsub: PubSub,
-  ) {}
-
-  @Mutation(() => Boolean)
-  shotString() {
-    this.pubsub.publish('EventName', { waitString: 'String ready' });
-    return true;
-  }
-
-  @Subscription(() => String)
-  waitString() {
-    return this.pubsub.asyncIterator('EventName');
-  }
+  constructor(private readonly memberService: MemberService) {}
 
   @Mutation(() => CoreOuput)
   @UseGuards(JwtGuard)

@@ -8,6 +8,10 @@ export class JwtIdGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
   async canActivate(context: ExecutionContext) {
     const gqlContext = GqlExecutionContext.create(context).getContext();
+    // console.log(gqlContext['token']);
+    // console.log(gqlContext[JWT_KEY]);
+    // console.log(gqlContext.req.headers[JWT_KEY]);
+    // return true;
     let token: string = null;
     if (gqlContext?.req?.headers[JWT_KEY]) {
       token = gqlContext.req.headers[JWT_KEY];

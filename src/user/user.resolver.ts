@@ -1,6 +1,9 @@
-import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Inject, UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
+import { PUB_SUB } from 'src/common/common.module';
 import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
+import { GetUserId } from './decorators/jwt.decorator';
 import { GetUser } from './decorators/user.decorator';
 import {
   CreateAccountInput,
@@ -14,11 +17,30 @@ import {
 } from './dtos/userCRUD.dto';
 import { User } from './entities/user.entity';
 import { JwtGuard } from './guards/user.guard';
+import { JwtIdGuard } from './guards/userId.guard';
 import { UserService } from './user.service';
 
 @Resolver()
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  // constructor(private readonly userService: UserService) {}
+
+  constructor(
+    private readonly userService: UserService,
+    @Inject(PUB_SUB) private readonly pubsub: PubSub,
+  ) {}
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtIdGuard)
+  shotString(@GetUserId() userId: number | null) {
+    const id = userId ? userId : 0;
+    this.pubsub.publish('EventName', { waitString: 'String ready' + id });
+    return true;
+  }
+
+  @Subscription(() => String)
+  waitString() {
+    return this.pubsub.asyncIterator('EventName');
+  }
 
   @Mutation(() => CreateAccountOutput)
   createAccount(

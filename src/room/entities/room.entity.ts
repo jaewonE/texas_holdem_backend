@@ -25,7 +25,7 @@ export class Room extends CoreEntity {
   @Column({ default: true })
   @Field(() => Boolean, { defaultValue: true })
   @IsBoolean()
-  isPublic?: boolean;
+  isPublic: boolean;
 
   @Column({ default: 0 })
   @Field(() => Int, { defaultValue: 0 })

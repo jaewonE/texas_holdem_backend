@@ -44,13 +44,17 @@ import { RoomInvitation } from './room/entities/roomInvitation.entity';
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       // playground: process.env.NODE_ENV !== 'production',
+      driver: ApolloDriver,
       playground: true,
       introspection: true,
-      driver: ApolloDriver,
       installSubscriptionHandlers: true,
       autoSchemaFile: true,
       subscriptions: {
-        'graphql-ws': true,
+        'subscriptions-transport-ws': {
+          onConnect: (connectionParams: any) => ({
+            token: connectionParams['x-jwt'],
+          }),
+        },
       },
       cache: 'bounded',
       cors: {
