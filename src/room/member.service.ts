@@ -23,6 +23,25 @@ export class MemberService {
     @Inject(UserService) private readonly userService: UserService,
   ) {}
 
+  canJoinTheRoom(room: Room | null, userId: number): CoreOuput {
+    if (!room) return { status: false, error: 'Room not found' };
+    if (!room.isPublic)
+      return { status: false, error: 'The room has been changed to private' };
+    if (room.cardList.length >= 1)
+      return { status: false, error: 'The game is in progress' };
+    if (room.users.length >= room.maxMember)
+      return { status: false, error: 'Member is full' };
+
+    if (!room.users) room.users = [];
+    const hasUser = room.users.filter((instance) => instance.id === userId);
+    if (hasUser.length > 0)
+      return {
+        status: false,
+        error: 'Already member of this room',
+      };
+    return { status: true };
+  }
+
   async deleteRoom(id: number): Promise<CoreOuput> {
     try {
       const room = await this.roomDB.findOne({
@@ -67,6 +86,39 @@ export class MemberService {
     }
   }
 
+  //유저가 방에 있었는지 확인하고 만약 자신이 방장이라면 방을 삭제한다.
+  async deleteRoomIfUserIsAlone(userId: number): Promise<CoreOuput> {
+    try {
+      const { user, status, error } =
+        await this.userService.findUserWithRelation({ id: userId });
+      if (!status || !user) {
+        return { status, error };
+      }
+      if (user.room) {
+        if (user.room.cardList.length >= 1)
+          return { status: false, error: 'The game is in progress' };
+        if (user.room?.id) {
+          const result = await this.leftRoom(user, { id: user.room.id });
+          if (
+            result ===
+            {
+              status: false,
+              error: 'Unexpected error from leftRoom',
+            }
+          ) {
+            return {
+              status: false,
+              error: 'Unexpected error from deleteRoomIfUserIsAlone',
+            };
+          }
+        }
+      }
+      return { status: true };
+    } catch (e) {
+      return e;
+    }
+  }
+
   // 만약 유저가 다른 방에 있었다면 joinRoom 메소드 실행시 그 방으로 값이 덮어쓰인다.
   async joinRoom(user: User, { roomId }: JoinRoomInput): Promise<CoreOuput> {
     try {
@@ -74,19 +126,14 @@ export class MemberService {
         where: { id: roomId },
         relations: ['users'],
       });
-      if (!room) return { status: false, error: 'Room not found' };
-      if (!room.isPublic)
-        return { status: false, error: 'The room has been changed to private' };
-      if (room.users.length >= room.maxMember)
-        return { status: false, error: 'Member is full' };
+      const canJoin = this.canJoinTheRoom(room, user.id);
+      if (!canJoin.status) return canJoin;
 
-      if (!room.users) room.users = [];
-      const hasUser = room.users.filter((instance) => instance.id === user.id);
-      if (hasUser.length > 0)
-        return {
-          status: false,
-          error: 'Already member of this room',
-        };
+      const { status, error } = await this.deleteRoomIfUserIsAlone(user.id);
+      if (!status) {
+        return { status, error };
+      }
+
       room.users.push(user);
       this.roomDB.save({ id: roomId, ...room });
       return { status: true };
@@ -124,38 +171,6 @@ export class MemberService {
       };
     }
   }
-
-  // async delegateRoomOwner(
-  //   user: User,
-  //   { roomId, userId }: MemberInput,
-  // ): Promise<CoreOuput> {
-  //   try {
-  //     const { room, ...roomOwnerStatus } = await this.isRoomOwner(
-  //       { roomId, userId: user.id },
-  //       'delegateRoomOwner',
-  //     );
-  //     if (!roomOwnerStatus.status) return roomOwnerStatus;
-  //     if (!room) throw new Error();
-
-  //     let hasUser = false;
-  //     for (const instance of room.users) {
-  //       if (instance.id === userId) {
-  //         hasUser = true;
-  //         break;
-  //       }
-  //     }
-  //     if (!hasUser)
-  //       return { status: false, error: `user with id ${userId} not found` };
-  //     room.ownerId = userId;
-  //     await this.roomDB.save({ id: roomId, ...room });
-  //     return { status: true };
-  //   } catch (e) {
-  //     return {
-  //       status: false,
-  //       error: 'Unexpected error from delegateRoomOwner',
-  //     };
-  //   }
-  // }
 
   async expelUser(
     user: User,
@@ -279,16 +294,8 @@ export class MemberService {
         where: { id: invitation.roomId },
         relations: ['users'],
       });
-      if (!room) return { status: false, error: 'Room not found' };
-      if (room.users.length >= room.maxMember)
-        return { status: false, error: 'Member is full' };
-      if (!room.users) room.users = [];
-      const hasUser = room.users.filter((instance) => instance.id === user.id);
-      if (hasUser.length > 0)
-        return {
-          status: false,
-          error: 'Already member of this room',
-        };
+      const canJoin = this.canJoinTheRoom(room, user.id);
+      if (!canJoin.status) return canJoin;
 
       room.users = [...room.users, user];
       await this.roomDB.save({ id: room.id, ...room });
