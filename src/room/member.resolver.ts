@@ -1,5 +1,7 @@
-import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Inject, UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
+import { PUB_SUB } from 'src/common/common.constant';
 import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
 import { GetUserId } from 'src/user/decorators/jwt.decorator';
 import { GetUser } from 'src/user/decorators/user.decorator';
@@ -17,7 +19,45 @@ import { MemberService } from './member.service';
 
 @Resolver()
 export class MemberResolver {
-  constructor(private readonly memberService: MemberService) {}
+  constructor(
+    private readonly memberService: MemberService,
+    @Inject(PUB_SUB) private readonly pubsub: PubSub,
+  ) {}
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtGuard)
+  shotString(@GetUser() user: User, @Args('input') message: string) {
+    this.pubsub.publish('EventName', {
+      waitString: `${user ? user.name : 'user not found'}: ${message}`,
+    });
+    return true;
+  }
+
+  @Subscription(() => String)
+  waitString() {
+    return this.pubsub.asyncIterator('EventName');
+  }
+
+  //누가 채팅 할 수 있는가
+  // 1. 인증된 유저(JWT)
+  // 2. 방 내부의 유저(roomId가 일치하는지) => 어떻게 일치하는지 확인 할 것인가
+  // @Subscription(() => Chat, {
+  //   filter: (chat: Chat, {}, { user }: { user: User }) => {
+  //     console.log(chat);
+  //     console.log(user);
+  //     return true;
+  //   },
+  // })
+  // @UseGuards(JwtGuard)
+  // waitChat() {
+  //   return this.pubsub.asyncIterator(CHAT_WAITING);
+  // }
+
+  // @Mutation(() => Boolean)
+  // @UseGuards(JwtIdGuard)
+  // shotChat(@GetUser() userId: number, @Args('input') message: string) {
+  //   return this.memberService.shotChat(userId, message);
+  // }
 
   @Mutation(() => CoreOuput)
   @UseGuards(JwtGuard)
@@ -27,15 +67,6 @@ export class MemberResolver {
   ): Promise<CoreOuput> {
     return this.memberService.joinRoom(user, joinRoomInput);
   }
-
-  // @Mutation(() => CoreOuput)
-  // @UseGuards(JwtGuard)
-  // delegateRoomOwner(
-  //   @GetUser() user: User,
-  //   @Args('input') memberInput: MemberInput,
-  // ): Promise<CoreOuput> {
-  //   return this.memberService.delegateRoomOwner(user, memberInput);
-  // }
 
   @Mutation(() => CoreOuput)
   @UseGuards(JwtGuard)
