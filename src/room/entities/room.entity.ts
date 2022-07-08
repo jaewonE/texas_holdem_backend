@@ -12,6 +12,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { User } from 'src/user/entities/user.entity';
 import { RoomInvitation } from './roomInvitation.entity';
+import { Chat } from './chat.entity';
 
 @InputType('RoomInputType', { isAbstract: true })
 @ObjectType()
@@ -72,4 +73,12 @@ export class Room extends CoreEntity {
   @Field(() => [RoomInvitation], { nullable: true })
   @IsArray()
   roomInvitation?: RoomInvitation[];
+
+  @OneToMany(() => Chat, (chat: Chat) => chat.room, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => [Chat], { nullable: true })
+  @IsArray()
+  chats?: Chat[];
 }

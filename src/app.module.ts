@@ -11,6 +11,7 @@ import { User } from './user/entities/user.entity';
 import { RoomModule } from './room/room.module';
 import { Room } from './room/entities/room.entity';
 import { RoomInvitation } from './room/entities/roomInvitation.entity';
+import { Chat } from './room/entities/chat.entity';
 
 @Module({
   imports: [
@@ -40,7 +41,7 @@ import { RoomInvitation } from './room/entities/roomInvitation.entity';
           }),
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV !== 'production',
-      entities: [User, Room, RoomInvitation],
+      entities: [User, Room, RoomInvitation, Chat],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       // playground: process.env.NODE_ENV !== 'production',
@@ -52,7 +53,7 @@ import { RoomInvitation } from './room/entities/roomInvitation.entity';
       subscriptions: {
         'subscriptions-transport-ws': {
           onConnect: (connectionParams: any) => ({
-            token: connectionParams['x-jwt'],
+            jwtToken: connectionParams['x-jwt'],
           }),
         },
       },

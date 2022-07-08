@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { UserService } from 'src/user/user.service';
-import { JWT_KEY } from '../jwt/jwt.constant';
+import { JWT_KEY, JWT_TOKEN } from '../jwt/jwt.constant';
 import { JwtService } from '../jwt/jwt.service';
 
 @Injectable()
@@ -13,7 +13,9 @@ export class JwtGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const gqlContext = GqlExecutionContext.create(context).getContext();
     let token: string = null;
-    if (gqlContext?.req?.headers[JWT_KEY]) {
+    if (gqlContext[JWT_TOKEN]) {
+      token = gqlContext[JWT_TOKEN];
+    } else if (gqlContext?.req?.headers[JWT_KEY]) {
       token = gqlContext.req.headers[JWT_KEY];
     }
     if (token) {

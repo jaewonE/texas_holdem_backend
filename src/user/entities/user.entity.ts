@@ -8,7 +8,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Room } from 'src/room/entities/room.entity';
 import { RoomInvitation } from 'src/room/entities/roomInvitation.entity';
@@ -72,6 +72,12 @@ export class User extends CoreEntity {
   @Field(() => Room, { nullable: true })
   @IsOptional()
   room?: Room;
+
+  @RelationId((user: User) => user.room)
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  roomId?: number;
 
   @OneToMany(
     () => RoomInvitation,

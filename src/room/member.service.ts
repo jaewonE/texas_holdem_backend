@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PubSub } from 'graphql-subscriptions';
+import { CHAT_WAITING, PUB_SUB } from 'src/common/common.constant';
 import { CoreOuput } from 'src/common/dtos/coreOutput.dto';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -11,6 +13,7 @@ import {
   RoomInvitationIdInput,
 } from './dtos/memberCRUD.dto';
 import { FindRoomOutput, LeftRoomInput } from './dtos/roomCRUD.dto';
+import { Chat } from './entities/chat.entity';
 import { Room } from './entities/room.entity';
 import { RoomInvitation } from './entities/roomInvitation.entity';
 
@@ -18,8 +21,10 @@ import { RoomInvitation } from './entities/roomInvitation.entity';
 export class MemberService {
   constructor(
     @InjectRepository(Room) private readonly roomDB: Repository<Room>,
+    @InjectRepository(Chat) private readonly chatDB: Repository<Chat>,
     @InjectRepository(RoomInvitation)
     private readonly invitationDB: Repository<RoomInvitation>,
+    @Inject(PUB_SUB) private readonly pubsub: PubSub,
     @Inject(UserService) private readonly userService: UserService,
   ) {}
 
@@ -116,6 +121,39 @@ export class MemberService {
       return { status: true };
     } catch (e) {
       return e;
+    }
+  }
+
+  async sendChat(userId: number, message: string): Promise<CoreOuput> {
+    try {
+      if (!userId) return { status: false, error: 'User not found' };
+      const userResult = await this.userService.findUserWithRelation({
+        id: userId,
+      });
+      if (!userResult.status || !userResult.user)
+        return {
+          status: false,
+          error: userResult.error ? userResult.error : 'User not found',
+        };
+      if (!userResult.user.room)
+        return { status: false, error: 'Room not found' };
+      const chat = this.chatDB.create({
+        chat: message,
+      });
+      chat.sender = userResult.user;
+      chat.senderId = userResult.user.id;
+      chat.room = userResult.user.room;
+      chat.roomId = userResult.user.roomId;
+      const { id, createAt } = await this.chatDB.save(chat);
+      this.pubsub.publish(CHAT_WAITING, {
+        waitChat: { ...chat, id, createAt },
+      });
+      return { status: true };
+    } catch (e) {
+      return {
+        status: false,
+        error: 'Unexpected error from shotChat',
+      };
     }
   }
 
